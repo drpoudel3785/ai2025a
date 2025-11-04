@@ -57,4 +57,21 @@ p{
 
 img{width:100%; height:auto;}
 
+@media only screen and (max-width: 960px) {
+    body{
+        background-color: aqua;
+    }
 
+    #container{width:920px;}
+    .colmd50{width:50%; float:left;}
+
+}
+
+@media only screen and (max-width: 480px) {
+    body{
+        background-color: rgb(31, 66, 156);
+    }
+    #container{width:430px;}
+    .colsm100{width:100%;}
+
+}
