@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h1>Register</h1>
+
+<form method="POST" name="register" >
+    <fieldset>
+        <legend>User Registration</legend>
+       Username  <input type="text" name="username" placeholder="Username" required> <br>
+       Password <input type="password" name="password" placeholder="Password" required> <br>
+      Email <input type="email" name="email" placeholder="you@domain.com" required> <br>
+        <input type="submit" name="submit" value="Register" >
+    </fieldset>
+    <p>Have an Account <a href="{{ url_for('login') }}">Login</a></p>
+</form>
+{% endblock %}
+{% block head %}
+<title>User Registration</title>
+{% endblock %}
