@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}
+    {% endblock %}
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="images/banner.jpg" alt="banner" class="img-fluid">
+<hr>
+<a href="{{url_for('index')}}">Home</a> | 
+<a href="{{url_for('about')}}">About</a> |
+<a href="{{url_for('contact')}}">Contact</a> 
+{% block main %}
+{% endblock %}
+<hr>
+<hr>
+&copy; 2025; myhotel.com, All right Reserved.
+</body>
+</html>

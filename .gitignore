@@ -2,3 +2,6 @@ links.txt
 template.html
 *.log
 temp/
+PYCHARM/
+vscode/venv
+vscode/.venv
