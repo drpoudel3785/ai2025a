@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+{% block main %}
+
+<h2>Edit User</h2>
+<form method="POST">
+    <input name="username" value="{{ user.username }}" required><br>
+    <input name="email" value="{{ user.email }}" required><br>
+
+    <select name="role">
+        <option value="user" {% if user.role=='user' %}selected{% endif %}>User</option>
+        <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+    </select><br>
+    <input name="status" value="{{ user.status }}" required><br>
+
+    <button type="submit">Update</button>
+</form>
+
+
+{% endblock %}
+{% block head %}
+<title>Add User from Admin </title>
+{% endblock %}

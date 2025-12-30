@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+{% block main %}
+
+<h2>Add User</h2>
+<form method="POST">
+    <input name="username" placeholder="Username" required><br>
+    <input name="email" type="email" placeholder="Email" required><br>
+    <input name="password" type="password" placeholder="Password" required><br>
+
+    <select name="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+    </select><br>
+
+    <button type="submit">Save</button>
+</form>
+
+{% endblock %}
+{% block head %}
+<title>Add User from Admin </title>
+{% endblock %}
+
