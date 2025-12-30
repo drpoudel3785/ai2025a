@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit Profile</title>
+{% endblock %}
+
+{% block main %}
+<h2>Edit Profile</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    
+    <label>Full Name</label><br>
+    <input type="text" name="fullname"
+           value="{{ profile.fullname if profile else '' }}" required><br><br>
+
+    <label>Profile Photo</label><br>
+    <input type="file" name="profile_picture" accept="image/*"><br><br>
+
+    {% if profile and profile.profile_picture %}
+        <img src="{{ url_for('static', filename=profile.profile_picture) }}"
+             width="120" style="border-radius:50%;">
+        <br><br>
+    {% endif %}
+
+    <button type="submit">Update Profile</button>
+</form>
+{% endblock %}

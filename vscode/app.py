@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, make_response
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, make_response,  flash
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates', static_folder='static', static_url_path="/")
 
@@ -19,6 +21,11 @@ mail = Mail(app)
 app.secret_key = 'secret123'
 # Token generator
 serializer = URLSafeTimedSerializer(app.secret_key)
+
+#for profile picture upload
+UPLOAD_FOLDER = 'static/uploads/profiles'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 import mysql.connector
 # 1. Connect
@@ -86,11 +93,19 @@ def login():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if 'loggedin' in session and session['role'] == 'admin':
+        user_id=session['id']
         cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT id, username, email, role, status FROM users")
         users = cursor.fetchall()
         total_users = len(users)   # COUNT USERS
-        return render_template('admin/admin_dashboard.html', users=users,  total_users=total_users)
+            # GET
+        cursor.execute("""
+            SELECT fullname, profile_picture 
+            FROM user_profile 
+            WHERE user_id=%s
+        """, (user_id,))
+        profile = cursor.fetchone()
+        return render_template('admin/admin_dashboard.html', users=users,  total_users=total_users, profile=profile)
     
 
     return redirect(url_for('login'))
@@ -99,7 +114,16 @@ def admin_dashboard():
 @app.route('/user/dashboard')
 def user_dashboard():
     if 'loggedin' in session and session['role'] == 'user':
-        return render_template('user/user_dashboard.html')
+            # GET
+        user_id=session['id']
+        cursor=db.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT fullname, profile_picture 
+            FROM user_profile 
+            WHERE user_id=%s
+        """, (user_id,))
+        profile = cursor.fetchone()
+        return render_template('user/user_dashboard.html', profile=profile)
     return redirect(url_for('login'))
 
 @app.route('/logout')
@@ -225,7 +249,7 @@ def edit_user(id):
             (username, email, role, status, id)
         )
         db.commit()
-        return redirect(url_for('admin/admin_dashboard'))
+        return redirect(url_for('admin_dashboard'))
 
     cursor.execute("SELECT * FROM users WHERE id=%s", (id,))
     user = cursor.fetchone()
@@ -239,8 +263,71 @@ def delete_user(id):
     cursor.execute("DELETE FROM users WHERE id=%s", (id,))
     db.commit()
 
-    return redirect(url_for('admin/admin_dashboard'))
+    return redirect(url_for('admin_dashboard'))
+    
+#allowed file extension
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#edit profile
+@app.route('/edit-profile', methods=['GET', 'POST'])
+def edit_profile():
+    if 'id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+    cursor = db.cursor()
+
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        file = request.files.get('profile_picture')
+
+        image_path = None
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            image_path = f"uploads/profiles/{user_id}_{filename}"
+            file.save(os.path.join(app.root_path, 'static', image_path))
+            #file.save(os.path.join('static', image_path))
+
+        # check if profile exists
+        cursor.execute("SELECT id FROM user_profile WHERE user_id=%s", (user_id,))
+        exists = cursor.fetchone()
+
+        if exists:
+            if image_path:
+                cursor.execute("""
+                    UPDATE user_profile 
+                    SET fullname=%s, profile_picture=%s 
+                    WHERE user_id=%s
+                """, (fullname, image_path, user_id))
+            else:
+                cursor.execute("""
+                    UPDATE user_profile 
+                    SET fullname=%s 
+                    WHERE user_id=%s
+                """, (fullname, user_id))
+        else:
+            cursor.execute("""
+                INSERT INTO user_profile (user_id, fullname, profile_picture)
+                VALUES (%s, %s, %s)
+            """, (user_id, fullname, image_path))
+
+        db.commit()
+        flash('Profile updated successfully')
+        if session['role'] == 'admin':
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('user_dashboard'))
+    else:
+        cursor=db.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT fullname, profile_picture 
+            FROM user_profile 
+            WHERE user_id=%s
+        """, (user_id,))
+        profile = cursor.fetchone()
+        return render_template('edit_profile.html', profile=profile)
 
 if __name__ == '__main__':
     app.run (host="127.0.0.1", port=5000, debug=True)
