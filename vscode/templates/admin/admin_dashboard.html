@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block main %}
 <h1>Admin Dashboard</h1>
+<hr>
+<a href="">User</a> | <a href="">Room</a> | <a href="">Gallery</a> |<a href="">Booking</a>
+<hr>
 <p>Welcome, {{session.username}} <a href="{{ url_for('logout') }}">Logout</a></p>
 
 {% if profile %}

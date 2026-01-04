@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   <!-- Internal JavaScript-->
+   <script>
+        let user = {
+            name: "Ram",
+            age: 22,
+            greet() {
+                console.log("Hello");
+            }
+        };
+        //accessing the object members and functions
+        console.log(user.name)
+        console.log(user.age)
+        user.greet()
+
+    </script>
+    <!-- Adding external JS-->
+    <script src="js/custome.js"></script>
+</head>
+<body>
+    <div id="gretting"></div>
+<!-- Inline Javascript event for calling external js functions-->
+    <button onclick="gretting()">Gretting</button>
+    <button onclick="hello()">Say Hello</button>
+    
+</body>
+</html>
